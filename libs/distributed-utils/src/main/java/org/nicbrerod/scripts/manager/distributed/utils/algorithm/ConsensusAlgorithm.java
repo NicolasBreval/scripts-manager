@@ -18,21 +18,84 @@ import org.nicbrerod.scripts.manager.distributed.utils.model.custom.ConsensusNod
 
 import lombok.Getter;
 
+/**
+ * Algorithm used in distributed systems to assign roles to nodes in a cluster and 
+ * keep which node is the leader
+ */
 public class ConsensusAlgorithm {
+    /**
+     * Used to generate some random numbers
+     */
     private Random rand;
+
+    /**
+     * Time to wait between two heartbeat message sent
+     */
     private long heartBeatRate;
+
+    /**
+     * Used to generate random wait times. This is the minimum value of a wait
+     */
     private long milliStart;
+
+    /**
+     * Used to generate random wait times. This is the maximum value of a wait
+     */
     private long millisLimit;
+
+    /**
+     * Object used to allow communication between nodes in a cluster
+     */
     private CommInterface<Long> commInterface;
+
+    /**
+     * Used to keep thread waiting for a leader in the startup of node
+     */
     private CountDownLatch firstWait;
+
+    /**
+     * Current node instance. This algorithm is applied on each node of a cluster, 
+     * so, each node instance have always a node related to it
+     */
     @Getter
     private ConsensusNode node;
+
+    /**
+     * The rest of nodes in cluster. This set is initially empty and is being filled 
+     * when new heartbeat messages are received from another nodes
+     */
     private Set<HeartBeatMessage<Long>> clusterNodes;
+
+    /**
+     * Term value is a number used when two nodes have the leader role. In a distributed system 
+     * only one node can be the leader, but, in some cases, due to connection problems, two nodes 
+     * can be the leader, so, this value is used to choose the leader in these situations. When two 
+     * or more nodes are leaders and are sending their heartbeat message, this value is sending too, and, 
+     * if a leader node receives a message of another leader node with a term value greater than yours, 
+     * these node is no longer leader and become to follower node
+     */
     private Long term;
+
+    /**
+     * Identifier of current leader node in cluster. If this value is equals to {@link ConsensusAlgorithm#node} id, 
+     * it means that this node is the leader
+     */
     @Getter
     private Long leader;
+
+    /**
+     * Number used to registry all votes received from another nodes when this node is trying to be the leader
+     */
     private AtomicInteger totalVotes = new AtomicInteger(0);
+
+    /**
+     * Number used to registry votes received from another node, choosing this node as leader.
+     */
     private AtomicInteger currentNodeVotes = new AtomicInteger(0);
+
+    /**
+     * Executor service used for multiple periodical tasks, like send periodicaally the heartbeat message
+     */
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
     public ConsensusAlgorithm(CommInterface<Long> ci) {
@@ -72,6 +135,9 @@ public class ConsensusAlgorithm {
         return rand.longs(milliStart, millisLimit).findFirst().getAsLong();
     }
 
+    /**
+     * Configures {@link #commInterface} to indicate how it should process messages received by other nodes
+     */
     @SuppressWarnings("unchecked")
     public void configureCommInterface() {
         commInterface.configureMessageProcessing(message -> {
@@ -115,12 +181,21 @@ public class ConsensusAlgorithm {
         });
     }
 
+    /**
+     * Sends a heartbeat message in broadcast mode with some information. The heartbeat message is used to indentify new nodes, 
+     * identify the leader node and send some system information of sender node
+     */
     public void sendPeriodicalHeartBeat() {
+        // TODO: calculate cpu usage and memory usage to be sent in heartbeat message
         executor.scheduleAtFixedRate(() -> 
             commInterface.sendBroadcast(new HeartBeatMessage<Long>(node.getId(), true, term, 0, 0)), 
         0, heartBeatRate, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Starts algorithm execution. To learn more about, read project's README file
+     * @throws InterruptedException
+     */
     public void run() throws InterruptedException {
         final long waitTime = generateRandomWait();
         firstWait = new CountDownLatch(1);
