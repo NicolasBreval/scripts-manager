@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# COMMON FOLDERS
+BASE_PATH="$(dirname $BASH_SOURCE)/../.."
+LIBS_PATH="$BASE_PATH/libs"
+
+# MVN PROJECTS FOLDERS
+DISTRIBUTED_UTILS_PATH="$LIBS_PATH/distributed-utils"
+
+for project_folder in $DISTRIBUTED_UTILS_PATH
+do
+	cd $project_folder
+	mvn test
+	status=$?
+
+	if [ $status -eq 0 ] 
+	then
+		echo "$project_folder tests successfully executed!!!"
+	else
+		echo "$project_folder tests executed with errors, canceling..."
+	fi
+done

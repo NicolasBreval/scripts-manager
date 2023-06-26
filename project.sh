@@ -11,6 +11,7 @@ done
 case "$command" in
     infra-up) script=./.tools/infra-up.sh;;
     infra-down) script=./.tools/infra-down.sh;;
+    install-hooks) script=./.tools/install-hooks.sh;;
 esac
 
 if [ -z "$script" ] 
