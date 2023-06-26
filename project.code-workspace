@@ -7,6 +7,9 @@
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "automatic",
 		"java.project.sourcePaths": ["src/main/java"],
-		"java.maven.downloadSources": true
+		"java.maven.downloadSources": true,
+		"files.exclude": {
+			"**/.git": false
+		}
 	}
 }
