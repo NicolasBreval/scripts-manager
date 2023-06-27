@@ -18,9 +18,26 @@ import org.nicbrerod.scripts.manager.distributed.utils.model.custom.ConsensusNod
  */
 public class TestCommInterface implements CommInterface<Long> {
 
+    /**
+     * Concurrent map used to register all nodes of cluster and allow communication between them. Each key of this map 
+     * is a node inside cluster and their values are queues where incoming messages are put inside
+     */
     private final static Map<ConsensusNode, LinkedBlockingQueue<CommInterfaceMessage>> clusterNodes = new ConcurrentHashMap<>();
+
+    /**
+     * Node related to current comm interface instance
+     */
     private ConsensusNode current;
+
+    /**
+     * Executor service used to check nodes queues periodically and process their messages
+     */
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
+    /**
+     * Consumer to be set from algorithm and specify how to process incoming messages to node related to this 
+     * comm interface
+     */
     private Consumer<CommInterfaceMessage> messageConsumer = null;
 
     public void registerNode(ConsensusNode node) {
