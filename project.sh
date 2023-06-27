@@ -12,11 +12,12 @@ case "$command" in
     infra-up) script=./.tools/infra-up.sh;;
     infra-down) script=./.tools/infra-down.sh;;
     install-hooks) script=./.tools/install-hooks.sh;;
+    install-libs) script=./.tools/install-libs.sh;;
 esac
 
 if [ -z "$script" ] 
 then
     echo "Not exists any script related to command ${command}"
 else
-    sh $script
+    sh $script $@
 fi
