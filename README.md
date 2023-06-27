@@ -3,6 +3,17 @@ System focused on script execution for several languages.
 
 This sytem allows to register some scripts to be stored for further execution, manually or periodical. Although this system is focused in ETLs, any user who uses it can perform their scripts for any use.
 
+## Sources
+List of sources from which I have obtained the knowledge necessary to develop this project:
+
+### Sources for server consensus algorithm
+* https://medium.com/@juan.baranowa/algor%C3%ADtmos-de-consenso-raft-y-paxos-b252e51e911a
+* https://es.wikipedia.org/wiki/Raft
+* https://hmong.es/wiki/Raft_(computer_science)
+
+### Sources for RabbitMQ deployment
+* https://github.com/serkodev/rabbitmq-cluster-docker/tree/master - GitHub project with an example of a RabbitMQ cluster for docker-compose deploy
+
 ## Requirements
 
 ![Bash](https://img.shields.io/badge/Bash-*-8A2BE2)
