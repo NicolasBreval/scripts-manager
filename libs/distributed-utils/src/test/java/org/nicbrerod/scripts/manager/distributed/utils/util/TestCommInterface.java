@@ -12,6 +12,10 @@ import org.nicbrerod.scripts.manager.distributed.utils.model.common.communicatio
 import org.nicbrerod.scripts.manager.distributed.utils.model.common.communication.msg.CommInterfaceMessage;
 import org.nicbrerod.scripts.manager.distributed.utils.model.custom.ConsensusNode;
 
+/**
+ * {@link Comminterface} implementation used only for local tests. This implementation registers all nodes in their static 
+ * context and allow to send messages to all nodes easilly
+ */
 public class TestCommInterface implements CommInterface<Long> {
 
     private final static Map<ConsensusNode, LinkedBlockingQueue<CommInterfaceMessage>> clusterNodes = new ConcurrentHashMap<>();
