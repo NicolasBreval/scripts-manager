@@ -36,3 +36,5 @@ do
 		fi	
 	fi
 done
+
+exit $exit_code
