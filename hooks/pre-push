@@ -1,22 +1,38 @@
 #!/bin/sh
 
 # COMMON FOLDERS
-BASE_PATH="$(dirname $BASH_SOURCE)/../.."
-LIBS_PATH="$BASE_PATH/libs"
+BASE_PATH=$(realpath "$(dirname $BASH_SOURCE)/../..")
+LIBS_PATH=$(realpath "$BASE_PATH/libs")
 
-# MVN PROJECTS FOLDERS
-DISTRIBUTED_UTILS_PATH="$LIBS_PATH/distributed-utils"
+exit_code=0
+changed_files=()
 
-for project_folder in $DISTRIBUTED_UTILS_PATH
+for commit in $(git rev-parse HEAD)
 do
-	cd $project_folder
-	mvn test
-	status=$?
+	for file in $(git diff-tree --no-commit-id --name-only $commit -r)
+	do
+		changed_files+=("${BASE_PATH}/${file}")
+	done
+done
 
-	if [ $status -eq 0 ] 
-	then
-		echo "$project_folder tests successfully executed!!!"
-	else
-		echo "$project_folder tests executed with errors, canceling..."
+for project_folder in "$LIBS_PATH/*/"
+do
+	changes=0
+	for file in $changed_files
+	do
+		if [[ "$file" == "$project_folder"* ]]; then
+			$changes=1
+		fi
+	done
+
+	if [[ $changes -eq 1 ]]; then
+		mvn -f "${project_folder}pom.xml" test
+		status=$?
+
+		if [ $status -ne 0 ]; then
+			echo "$project_folder tests executed with errors, canceling..."
+			exit_code=1
+			break
+		fi	
 	fi
 done
