@@ -1,0 +1,20 @@
+name: Java libs tests
+
+on: 
+  push:
+    paths:
+      - 'libs/distributed-utils/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Test with Maven
+        run: mvn -f ./libs/distributed-utils/pom.xml test
