@@ -56,10 +56,3 @@ Undeploy the previously deployed infrastructure with *infra-up* tool. To perform
 ```bash
 ./project.sh -r infra-down
 ```
-
-#### install-hooks
-Applies customized hooks to local git repository. This tool it's only needed first time, because only copies hooks files from root folder to git hooks folder and, since that time, hooks are applied in your repository. To perform operation you must to run:
-
-```bash
-./project.sh -r install-hooks
-```
