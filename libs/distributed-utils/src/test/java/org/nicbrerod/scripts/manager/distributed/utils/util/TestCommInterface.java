@@ -40,6 +40,10 @@ public class TestCommInterface implements CommInterface<Long> {
      */
     private Consumer<CommInterfaceMessage> messageConsumer = null;
 
+    /**
+     * Allows to register a node in the nodes map to redirect messages
+     * @param node Node to be registered
+     */
     public void registerNode(ConsensusNode node) {
             clusterNodes.put(node, new LinkedBlockingQueue<>());
             current = node;
