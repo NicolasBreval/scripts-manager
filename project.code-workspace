@@ -11,5 +11,21 @@
 		"files.exclude": {
 			"**/.git": false
 		}
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Install git hooks",
+				"command": "git config core.hooksPath ./hooks",
+				"type": "shell",
+				"presentation": {
+					"reveal": "silent"
+				},
+				"runOptions": {
+					"runOn": "folderOpen"
+				}
+			}
+		]
 	}
 }
