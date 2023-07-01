@@ -1,0 +1,17 @@
+#!/bin/bash
+
+libs_folder=../../libs
+staged=$(git diff --name-only --cached)
+need_tests=0
+
+for file in $staged; do
+    if [[ $file == libs* ]]; then
+        need_tests=1
+    fi
+done
+
+if [[ $need_tests -eq 1 ]]; then
+    for dir in "$libs_folder/*"; do
+        mvn -f $dir test
+    done
+fi
