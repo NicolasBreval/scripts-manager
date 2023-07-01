@@ -12,6 +12,6 @@ done
 
 if [[ $need_tests -eq 1 ]]; then
     for dir in "$libs_folder/*"; do
-        mvn -f $dir test
+        mvn -f $dir/pom.xml test
     done
 fi
