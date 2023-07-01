@@ -4,6 +4,8 @@ libs_folder=$PWD/libs
 staged=$(git diff --name-only --cached)
 need_tests=0
 
+echo Checking for changes that needs test execution
+
 for file in $staged; do
     if [[ $file == libs* ]]; then
         need_tests=1
@@ -12,6 +14,7 @@ done
 
 if [[ $need_tests -eq 1 ]]; then
     for dir in "$libs_folder/*"; do
+        echo Running tests for $dir
         mvn -f $dir/pom.xml test
     done
 fi
