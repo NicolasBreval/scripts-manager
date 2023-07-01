@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-libs_folder=../../libs
+libs_folder=$PWD/libs
 staged=$(git diff --name-only --cached)
 need_tests=0
 
