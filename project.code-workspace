@@ -17,7 +17,7 @@
 		"tasks": [
 			{
 				"label": "Install git hooks",
-				"command": "git config core.hooksPath ./hooks",
+				"command": "chmod +x ./hooks/* && git config core.hooksPath ./hooks",
 				"type": "shell",
 				"presentation": {
 					"reveal": "silent"
