@@ -24,35 +24,45 @@ List of sources from which I have obtained the knowledge necessary to develop th
 
 ![Quarkus](https://img.shields.io/badge/Quarkus-3+-blue)
 
+![Docker](https://img.shields.io/badge/Docker-24+-0073ec)
+
 \* Bash is needed to make some operations over monorepo, but, in future, will be possible make this operations with Windows' command prompt and Powershell too.
 
-## Project structure
+## Repository structure
+This repository uses a monorepo structure, this is, inside this repository there are multiple projects that they could be stored in different repositories, but, how there are projects uses for same product or software, they can be placed at same repository.
 
-### VSCode
-This project is configured to be used in VSCode IDE, so you can see a file named *project.code-workspace* where are located all VSCode workspace properties.
-
-### Git
-This repository is stored in GitHub, so git client is used to commit and push your changes to repository. In order to increase the code security, project allows you to configure some hooks to run before some git operations, like push. To apply this hooks, you must to run this command:
-
+The folder structure of the project can be shown in this schema:
 ```bash
-./project.sh -r install-hooks
+.
+├── README.md # This README file
+├── apps # All executable applications
+├── docs # Some documentation additional files
+├── hooks # Folder with all git hooks
+│   └── pre-commit # Pre-commit git hook to run test after commit
+├── infrastructure # Folder with needed infrastructure for local testing
+│   ├── docker-compose.yml # Docker-compose file to deploy infrastructure
+│   ├── haproxy # Folder to link with Haproxy volume
+│   └── rabbitmq # Folder to link with RabbitMQ volume
+├── libs # All libraries needed for apps projects
+│   └── distributed-utils # Library with some util classes to define distributed-system-based operations
+├── project.code-workspace # VSCode workspace file
+├── tools # Some script tools needed for VSCode workspace tasks
+│   └── install-libs # Task's script to compile and install project's maven libs
+└── ui # Folder to store frontend projects
 ```
 
-This command take all scripts inside hooks folder and copy them to .git/hooks folder; this action automatically applies this hooks to you local git.
+## Repository management
+To make easy and also to limit user's required dependencies, the monorepo mangement ha been implemented using VSCode's tasks. So, if you want to make any monorepo operation, just make this steps:
 
-### Tools
-To manage some elements of project there are some scripts, which can be executed from *project.sh* script, located at root of this repository. In *.tools* folder are located all scripts with all operations that project can perform over itself; to run any script over repository, you can call *project.sh* with *-r* option and a name as value, this name must be the same as script you want to execute from *.tools* folder. Currently, this is the list of tools you can perform in repository:
+1. Open Command Palette:
+    * MacOS: ⇧⌘P
+    * Linux: Ctrl+Shift+P
+    * Windows: Ctrl+Shift+P
+2. Search for "Run Task" task and select
+3. Search for one of repository's task:
+    * **Infrastructure UP**: Executes a "docker-compose up" to deploy infrastructure on local docker
+    * **Infrastructure DOWN**: Executes a "docker-compose down" to undeploy previously deployed infrastructure on local docker
+    * **Install libs**: Builds and install all projects inside /libs folder in user's local Maven repository
 
-#### infra-up
-Used to deploy a docker-compose file in Docker to start all infrastructure dependencies. To perform operation you must to run:
-
-```bash
-./project.sh -r infra-up
-```
-
-#### infra-down
-Undeploy the previously deployed infrastructure with *infra-up* tool. To perform operation you must to run:
-
-```bash
-./project.sh -r infra-down
-```
+## Git integration
+To make easy for developers programming in this monorepo, an automatic task is added to VSCode workspace to set local repository hooks path. With this, when a developer tries to make a commit, first, pre-commit hook checks if the changes are related to any test and, if commit not pass the tests it no applies.
