@@ -1,8 +1,9 @@
 #!/bin/bash
 
 current_folder=$PWD
+exit_code=0
 
-for lib in $current_folder/libs/*/
+for lib in $current_folder/../libs/*/
 do
     mvn -f "${lib}pom.xml" clean install -DskipTests
     status=$?
@@ -12,6 +13,9 @@ do
         echo "Project in $lib successfully installed!!!" 
     else
         echo "Error building and installing project in $lib, please, check the log. Canceling..."
+        ecit_code=1
         break;
     fi
 done
+
+exit $exit_code

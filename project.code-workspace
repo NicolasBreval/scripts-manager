@@ -24,6 +24,43 @@
 				},
 				"runOptions": {
 					"runOn": "folderOpen"
+				},
+				"options": {
+					"cwd": "${workspaceFolder}"
+				}
+			},
+			{
+				"label": "Infrastructure UP",
+				"command": "docker-compose up -d",
+				"type": "shell",
+				"presentation": {
+					"reveal": "silent"
+				},
+				"options": {
+					"cwd": "${workspaceFolder}/infrastructure"
+				}
+			},
+			{
+				"label": "Infrastructure DOWN",
+				"command": "docker-compose down",
+				"type": "shell",
+				"presentation": {
+					"reveal": "silent"
+				},
+				"options": {
+					"cwd": "${workspaceFolder}/infrastructure"
+				}
+			},
+			{
+				"label": "Install libs",
+				"type": "shell",
+				"command": "/bin/sh",
+				"args": ["install-libs"],
+				"presentation": {
+					"reveal": "silent"
+				},
+				"options": {
+					"cwd": "${workspaceFolder}/tools"
 				}
 			}
 		]
