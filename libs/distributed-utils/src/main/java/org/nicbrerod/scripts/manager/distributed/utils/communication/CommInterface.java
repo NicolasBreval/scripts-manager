@@ -1,18 +1,16 @@
-package org.nicbrerod.scripts.manager.distributed.utils.model.common.communication;
+package org.nicbrerod.scripts.manager.distributed.utils.communication;
 
-import java.io.Serializable;
+import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.nicbrerod.scripts.manager.distributed.utils.model.common.communication.msg.CommInterfaceMessage;
+import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.CommInterfaceMessage;
 
 /**
  * Class used by algorithms to send broadcast and direct messages and also to define listeners for
  * incoming messages. All messages sent and received by this class are children of type {@link CommInterfaceMessafe}
  * 
- * @param <I> Generic type to represent type of node ids. This type is needed because {@link #sendMessage(CommInterfaceMessage, Long)}
- * method requires the identifier as a parameter.
  */
-public interface CommInterface<I extends Serializable & Comparable<I>> {
+public interface CommInterface {
     
     /**
      * Sends a message to all nodes in a cluster
@@ -25,7 +23,7 @@ public interface CommInterface<I extends Serializable & Comparable<I>> {
      * @param message Message to be sent
      * @param recipient Id of node to send the message
      */
-    void sendMessage(CommInterfaceMessage message, Long recipient);
+    void sendMessage(CommInterfaceMessage message, UUID recipient);
 
     /**
      * Configures how the comm interface must to process an incoming message
