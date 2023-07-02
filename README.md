@@ -38,7 +38,7 @@ The folder structure of the project can be shown in this schema:
 ├── apps # All executable applications
 ├── docs # Some documentation additional files
 ├── hooks # Folder with all git hooks
-│   └── pre-commit # Pre-commit git hook to run test after commit
+│   └── pre-commit # Pre-commit git hook to run test before commit
 ├── infrastructure # Folder with needed infrastructure for local testing
 │   ├── docker-compose.yml # Docker-compose file to deploy infrastructure
 │   ├── haproxy # Folder to link with Haproxy volume
