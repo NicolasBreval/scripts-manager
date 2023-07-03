@@ -4,6 +4,7 @@ libs_folder=$PWD/libs
 staged=$(git diff --name-only --cached)
 affected_files=""
 affected_projects=""
+global_result=0
 
 for file in $staged; do
     if [[ $file == libs* ]]; then        
@@ -29,7 +30,13 @@ done
 
 if [ -n "$affected_projects" ]; then
     for dir in $affected_projects; do
-        echo Running tests for $dir
-        mvn -f $dir/pom.xml test
+        result=$(mvn -f $dir/pom.xml test)
+        if  [[ $result -ne 0 ]]; then
+            echo Error running tests for $dir
+            global_result=1
+            break
+        fi
     done
 fi
+
+exit $global_result
