@@ -1,7 +1,7 @@
 # scripts-manager
-System focused on script execution for several languages.
+System focused on the execution of scripts of different languages on a distributed system.
 
-This sytem allows to register some scripts to be stored for further execution, manually or periodical. Although this system is focused in ETLs, any user who uses it can perform their scripts for any use.
+This project allows to build a distributed system with the capacity to store and execute scripts in several languages in order to give an answer to needs such as periodic execution of tasks, execution of ETLs, and any need based on the execution of scripts in a high availability system. To ensure high availability, a server consensus algorithm is used, which allows the servers that form part of the system to be managed autonomously at all times; in addition, asynchronous communications are used, based on RabbitMQ, which allows the system to be completely reactive, with almost immediate responses to any external communication.
 
 ## Sources
 List of sources from which I have obtained the knowledge necessary to develop this project:
@@ -65,4 +65,19 @@ To make easy and also to limit user's required dependencies, the monorepo mangem
     * **Install libs**: Builds and install all projects inside /libs folder in user's local Maven repository
 
 ## Git integration
-To make easy for developers programming in this monorepo, an automatic task is added to VSCode workspace to set local repository hooks path. With this, when a developer tries to make a commit, first, pre-commit hook checks if the changes are related to any test and, if commit not pass the tests it no applies.
+To make easy for developers programming in this monorepo, an automatic task is added to VSCode workspace to set local repository hooks path. With this, when a developer tries to make a commit, first, pre-commit hook checks if the changes are related to any test and, if commit not pass the tests it no applies. Here are listed all the hooks of the project and a short explanation of each one of them:
+
+### commit-msg
+Checks that the commit message written by developer complies with Angular conventional commit structure, defined in https://www.conventionalcommits.org/en/v1.0.0-beta.4/. This hook checks the commit message structure with a regex and, if message is not valid, blocks the commit.
+
+### pre-commit
+Checks if the commit applies to any project with tests and, if so, run tests. If tests fails, blocks the commit.
+
+## Projects
+As mentioned above, this is a monorepository, so, in the same repository there are multiple interrelated projects. In this section all projects are listed and briefly explained:
+
+### distributed-utils
+Located at libs/distributed-utils. Is a Maven project which defines a Java library with some utils to create a cluster node, this is, a server that is part of a group of servers and have the ability of communicate with them and working together. The most important part of this project is the consensus algorithm, because is the logic used to select the leader in a cluster and this is ready to make it asyncrhonously and without the need to know all nodes beforehand. 
+
+### script-runner
+Located at libs/script-runner. Is a Maven project which defines a piece of software with the ability to run scripts of several languages. All scripts are processed in a separate process, using the corresponding interpreter, so this project has the requirement of have installed the required interpreter for its correct operation.
