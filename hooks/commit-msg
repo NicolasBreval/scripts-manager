@@ -1,0 +1,6 @@
+#!/bin/bash
+
+test "" != "$(egrep '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\([[:alnum:]._-]+\))?(!)?: ([[:alnum:]])+([[:space:][:print:]]*)' "$1")" || {
+    echo >&2 Commit message requires properly Angular conventional commit structure, please check it: https://www.conventionalcommits.org/en/v1.0.0-beta.4/
+    exit 1
+}
