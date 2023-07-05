@@ -109,9 +109,19 @@ public class ClusterNode {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> heartbeatExecutor.shutdownNow()));
     }
 
+    public ClusterNode(CommInterface commInterface, UUID id) {
+        this(commInterface);
+        this.id = id;
+    }
+
     public ClusterNode(CommInterface commInterface, long heartbeatRate) {
         this(commInterface);
         this.heartbeatRate = heartbeatRate;
+    }
+
+    public ClusterNode(CommInterface commInterface, UUID id, long heartbeatRate) {
+        this(commInterface, heartbeatRate);
+        this.id = id;
     }
 
     public ClusterNode(CommInterface commInterface, long millisStart, long millisEnd) {
@@ -120,9 +130,19 @@ public class ClusterNode {
         this.millisEnd = millisEnd;
     }
 
+    public ClusterNode(CommInterface commInterface, UUID id, long millisStart, long millisEnd) {
+        this(commInterface, millisStart, millisEnd);
+        this.id = id;
+    }
+
     public ClusterNode(CommInterface commInterface, Random rand) {
         this(commInterface);
         this.rand = rand;
+    }
+
+    public ClusterNode(CommInterface commInterface, UUID id, Random rand) {
+        this(commInterface, rand);
+        this.id = id;
     }
 
     public ClusterNode(CommInterface commInterface, long heartbeatRate, long millisStart, long millisEnd) {
@@ -132,10 +152,20 @@ public class ClusterNode {
         this.millisEnd = millisEnd;
     }
 
+    public ClusterNode(CommInterface commInterface, UUID id, long heartbeatRate, long millisStart, long millisEnd) {
+        this(commInterface, heartbeatRate, millisStart, millisEnd);
+        this.id = id;
+    }
+
     public ClusterNode(CommInterface commInterface, long heartbeatRate, Random rand) {
         this(commInterface);
         this.heartbeatRate = heartbeatRate;
         this.rand = rand;
+    }
+
+    public ClusterNode(CommInterface commInterface, UUID id, long heartbeatRate, Random rand) {
+        this(commInterface, heartbeatRate, rand);
+        this.id = id;
     }
 
     public ClusterNode(CommInterface commInterface, long millisStart, long millisEnd, Random rand) {
@@ -151,6 +181,11 @@ public class ClusterNode {
         this.millisStart = millisStart;
         this.millisEnd = millisEnd;
         this.rand = rand;
+    }
+
+    public ClusterNode(CommInterface commInterface, UUID id, long heartbeatRate, long millisStart, long millisEnd, Random rand) {
+        this(commInterface, heartbeatRate, millisStart, millisEnd, rand);
+        this.id = id;
     }
 
     /**
