@@ -10,7 +10,17 @@
 		"java.maven.downloadSources": true,
 		"files.exclude": {
 			"**/.git": false
-		}
+		},
+		"microprofile.tools.validation.unknown.excluded": [
+			"*/mp-rest/providers/*/priority",
+			"mp.openapi.schema.*",
+			"kafka-streams.*",
+			"camel.*",
+			"rabbitmq-password",
+			"rabbitmq-username",
+			"rabbitmq-port",
+			"rabbitmq-host"
+		]
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -62,7 +72,68 @@
 				"options": {
 					"cwd": "${workspaceFolder}/tools"
 				}
+			},
+			{
+				"label": "Build Node Native Image",
+				"type": "shell",
+				"command": "./mvnw package -Pnative -DskipTests -Dquarkus.native.container-build=true && docker build -f ./src/main/docker/Dockerfile.native -t native-node .",
+				"presentation": {
+					"reveal": "silent"
+				},
+				"options": {
+					"cwd": "${workspaceFolder}/apps/node"
+				}
+			},
+			{
+				"type": "shell",
+				"isBackground": true,
+				"problemMatcher": [
+					{
+						"owner": "quarkus",
+						"fileLocation": [
+							"relative",
+							"${workspaceFolder}/src/main/resources/templates"
+						],
+						"pattern": [
+							{
+								"regexp": "\\[(\\d+)\\]\\s(.*):(\\d+):(\\d+)\\s\\-\\s{(.*)}:\\s(.*)$",
+								"file": 2,
+								"line": 3,
+								"column": 4,
+								"message": 6
+							}
+						],
+						"background": {
+							"activeOnStart": true,
+							"beginsPattern": "^.*Scanning for projects...",
+							"endsPattern": "(^.*Quarkus .* started in .*\\.)|(^.* ERROR .* Failed to start)"
+						}
+					}
+				],
+				"group": "build",
+				"label": "quarkus:dev (apps/node)",
+				"command": "./mvnw quarkus:dev ",
+				"windows": {
+					"command": ".\\mvnw.cmd quarkus:dev "
+				},
+				"options": {
+					"cwd": "apps/node"
+				}
 			}
 		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"preLaunchTask": "quarkus:dev (apps/node)",
+				"type": "java",
+				"request": "attach",
+				"hostName": "localhost",
+				"name": "Debug Quarkus application (apps/node)",
+				"port": 5005
+			}
+		],
+		"compounds": []
 	}
 }
