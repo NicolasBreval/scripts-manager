@@ -1,5 +1,6 @@
 package org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.nicbrerod.scripts.manager.distributed.utils.model.communication.CommInterfaceMessageType;
@@ -45,6 +46,9 @@ public class HeartBeatMessage extends CommInterfaceMessage {
     @Getter    
     private float memoryUsage;
 
+    @Getter
+    private OffsetDateTime dateTime;
+
     public HeartBeatMessage(UUID node, boolean leader, long term, float cpuUsage, float memoryUsage) {
         super(CommInterfaceMessageType.HEARTBEAT);
         this.node = node;
@@ -52,5 +56,6 @@ public class HeartBeatMessage extends CommInterfaceMessage {
         this.term = term;
         this.cpuUsage = cpuUsage;
         this.memoryUsage = memoryUsage;
+        this.dateTime = OffsetDateTime.now();
     }
 }

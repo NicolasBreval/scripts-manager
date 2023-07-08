@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.logging.Logger;
 import org.nicbrerod.scripts.manager.distributed.utils.communication.CommInterface;
 import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.HeartBeatMessage;
 
@@ -62,6 +63,7 @@ public class ClusterNode {
     /**
      * Map to store current information about the rest of nodes in the cluster
      */
+    @Getter
     private Map<UUID, HeartBeatMessage> clusterNodesInfo;
 
     /**
@@ -69,6 +71,7 @@ public class ClusterNode {
      * is usefull when two or more nodes want to become the leader and algorithm needs to
      * select one 
      */
+    @Getter
     private long term;
 
     /**
@@ -88,10 +91,17 @@ public class ClusterNode {
     private ScheduledExecutorService heartbeatExecutor;
 
     /**
+     * Executor service used to check if any nodes have stopped communicating with it, in order to remove them from the registry
+     */
+    private ScheduledExecutorService checkClusterNodesExecutor;
+
+    /**
      * Boolean value to indicate that the node is ready to operate with it
      */
     @Getter
     private boolean active;
+
+    private Logger log;
 
     public ClusterNode(CommInterface commInterface) {
         this.id = UUID.randomUUID();
@@ -106,7 +116,10 @@ public class ClusterNode {
         this.leaderTerm = Long.MAX_VALUE;
         this.active = false;
         this.heartbeatExecutor = Executors.newScheduledThreadPool(1);
+        this.checkClusterNodesExecutor = Executors.newScheduledThreadPool(1);
+        this.log = Logger.getLogger(this.id.toString());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> heartbeatExecutor.shutdownNow()));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> checkClusterNodesExecutor.shutdownNow()));
     }
 
     public ClusterNode(CommInterface commInterface, UUID id) {
@@ -189,13 +202,39 @@ public class ClusterNode {
     }
 
     /**
+     * Maximum time a node can go without communicating with the current node before the current node deregisters it
+     */
+    private long getCheckRegisteredClusterNodesRate() {
+        return Math.round(this.heartbeatRate * 2);
+    }
+
+    /**
      * Starts periodically heartbeat message sending
      */
     public void sendPeriodicalHeartBeat() {
         // TODO: Get system's cpu and memory usage
         heartbeatExecutor.scheduleAtFixedRate(() -> commInterface.sendBroadcast(
-            new HeartBeatMessage(this.id, this.leader == this.id, term, 0, 0)), 
+            new HeartBeatMessage(this.id, this.leader.equals(this.id), term, 0, 0)), 
             0, heartbeatRate, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Starts periodically nodes checking
+     */
+    public void checkClusterNodeRegistry() {
+        // TODO: Add logic if leader is the cluster node to remove
+        checkClusterNodesExecutor.scheduleAtFixedRate(() -> {
+            var currentMillis = OffsetDateTime.now().toInstant().toEpochMilli();
+
+            this.clusterNodesInfo.entrySet().stream().filter(entry -> {
+                var millisDateTime = entry.getValue().getDateTime().toInstant().toEpochMilli();
+                return currentMillis - millisDateTime > getCheckRegisteredClusterNodesRate();
+            }).forEach(entry -> {
+                log.warn(String.format("New inactive node: '%s'", entry.getKey()));
+                this.clusterNodesInfo.remove(entry.getKey());
+            });
+
+        }, 0, getCheckRegisteredClusterNodesRate(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -203,7 +242,7 @@ public class ClusterNode {
      * @return True if this instance is the leader, false else
      */
     public boolean imLeader() {
-        return this.leader == this.id;
+        return this.leader.equals(this.id);
     }
 
     /**
@@ -212,11 +251,16 @@ public class ClusterNode {
      */
     public void configureCommInterface() {
         this.commInterface.configureMessageProcessing((message) -> {
+            if (message.getId().equals(this.id))
+                return;
+
             switch (message.getType()) {
                 case HEARTBEAT:
                     var heartbeat = (HeartBeatMessage)message;
 
-                    if (heartbeat.isLeader() && heartbeat.getTerm() < this.term) {
+                    log.info(String.format("New message received from '%s'", heartbeat.getNode()));
+
+                    if (heartbeat.getTerm() < this.term) {
                         this.leader = heartbeat.getNode();
                         this.leaderTerm = heartbeat.getTerm();
                     }
@@ -246,6 +290,9 @@ public class ClusterNode {
     public void consensus() throws InterruptedException {
         // first of all, start heartbeat sending to notify of your existence
         sendPeriodicalHeartBeat();
+
+        // then, starts to check for another nodes registered as neighbours of same cluster
+        checkClusterNodeRegistry();
 
         // wait a random amount of milliseconds. This is usefull to wait to receive messages from the leader and 
         // don't to try become it
