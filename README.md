@@ -36,6 +36,7 @@ The folder structure of the project can be shown in this schema:
 .
 ├── README.md # This README file
 ├── apps # All executable applications
+│   └── node # Project to represent a part of the complete solution, the cluster's node
 ├── docs # Some documentation additional files
 ├── hooks # Folder with all git hooks
 │   └── pre-commit # Pre-commit git hook to run test before commit
@@ -45,6 +46,7 @@ The folder structure of the project can be shown in this schema:
 │   └── rabbitmq # Folder to link with RabbitMQ volume
 ├── libs # All libraries needed for apps projects
 │   └── distributed-utils # Library with some util classes to define distributed-system-based operations
+│   └── script-runner # Library which contains some elements with the ability to run scripts of a concrete language
 ├── project.code-workspace # VSCode workspace file
 ├── tools # Some script tools needed for VSCode workspace tasks
 │   └── install-libs # Task's script to compile and install project's maven libs
@@ -81,3 +83,6 @@ Located at libs/distributed-utils. Is a Maven project which defines a Java libra
 
 ### script-runner
 Located at libs/script-runner. Is a Maven project which defines a piece of software with the ability to run scripts of several languages. All scripts are processed in a separate process, using the corresponding interpreter, so this project has the requirement of have installed the required interpreter for its correct operation.
+
+### node
+Located at apps/node. Is a Maven project which defines a component of complete solution, called node o cluster's node. A node is an element inside a cluster that can make some operations, in this case can run scripts of differente languages, and also can communicate with another nodes using messages through RabbitMQ. One of all nodes in a cluster is called leader, because is the responsible for receive all users requests and select another node, or himself, to process it.
