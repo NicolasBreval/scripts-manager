@@ -1,37 +1,83 @@
 #!/bin/sh
 
-libs_folder=$PWD/libs
+# Take all staged files from git client
 staged=$(git diff --name-only --cached)
-affected_files=""
-affected_projects=""
+
+# Variable to store all staged files inside libs folder
+affected_lib_files=""
+
+# Variable to store all projects with staged files inside libs folder
+affected_lib_projects=""
+
+# Variable to store all staged files inside apps folder
+affected_apps_files=""
+
+# Variable to store all projects with staged files inside apps folder
+affected_apps_projects=""
+
+# Exit code returned to git pre-commit hook
 global_result=0
 
+# For each file in staged files list, check if is inside libs or apps folder and include in the appropiate list
 for file in $staged; do
     if [[ $file == libs* ]]; then        
-        if [ -z "$affected_files" ]; then
-            affected_files="$PWD/$file"
+        if [ -z "$affected_lib_files" ]; then
+            affected_lib_files="$PWD/$file"
         else
-            affected_files="$affected_files $PWD/$file"
+            affected_lib_files="$affected_lib_files $PWD/$file"
+        fi
+    elif [[ $file == apps* ]]; then
+        if [ -z "$affected_apps_files" ]; then
+            affected_apps_files="$PWD/$file"
+        else
+            affected_apps_files="$affected_apps_files $PWD/$file"
         fi
     fi
 done
 
-for file in $affected_files; do
+# For each staged file inside libs and apps folders, check inside which project is and add to affected projects list
+
+for file in $affected_lib_files; do
     if [[ "$file" =~ .*\/libs\/[^\/]+ ]]; then
-        if [[ "$affected_projects" != *"${BASH_REMATCH[0]}"* ]]; then
-            if [[ -z "$affected_projects" ]]; then
-                affected_projects="${BASH_REMATCH[0]}"
+        if [[ "$affected_lib_projects" != *"${BASH_REMATCH[0]}"* ]]; then
+            if [[ -z "$affected_lib_projects" ]]; then
+                affected_lib_projects="${BASH_REMATCH[0]}"
             else
-                affected_projects="$affected_projects ${BASH_REMATCH[0]}"
+                affected_lib_projects="$affected_lib_projects ${BASH_REMATCH[0]}"
             fi
         fi
     fi
 done
 
-if [ -n "$affected_projects" ]; then
-    for dir in $affected_projects; do
+for file in $affected_apps_files; do
+    if [[ "$file" =~ .*\/apps\/[^\/]+ ]]; then
+        if [[ "$affected_apps_projects" != *"${BASH_REMATCH[0]}"* ]]; then
+            if [[ -z "$affected_apps_projects" ]]; then
+                affected_apps_projects="${BASH_REMATCH[0]}"
+            else
+                affected_apps_projects="$affected_apps_projects ${BASH_REMATCH[0]}"
+            fi
+        fi
+    fi
+done
+
+# For each affected project, run its tests
+
+if [ -n "$affected_lib_projects" ]; then
+    for dir in $affected_lib_projects; do
         result=$(mvn -f $dir/pom.xml test)
         if  [[ $result -ne 0 ]]; then
+            echo Error running tests for $dir
+            global_result=1
+            break
+        fi
+    done
+fi
+
+if [ -n "$affected_apps_projects" ]; then
+    for dir in $affected_apps_projects; do
+        result=$(mvn -f $dir/pom.xml test)
+        if [[ $result -ne 0 ]]; then
             echo Error running tests for $dir
             global_result=1
             break
