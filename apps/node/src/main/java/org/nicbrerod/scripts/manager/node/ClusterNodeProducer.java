@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.nicbrerod.scripts.manager.distributed.utils.communication.CommInterface;
-import org.nicbrerod.scripts.manager.distributed.utils.node.ClusterNode;
 
 import io.quarkus.arc.log.LoggerName;
 import jakarta.enterprise.inject.Produces;
@@ -56,8 +55,8 @@ public class ClusterNodeProducer {
      */
     @Produces
     @Singleton
-    public ClusterNode createNode() {
-        var node = new ClusterNode(commInterface, id, heartbeatRate, millisStart, millisEnd);
+    public ScriptManagerClusterNode createNode() {
+        var node = new ScriptManagerClusterNode(commInterface, id, heartbeatRate, millisStart, millisEnd);
         node.configureCommInterface();
         new Thread(() -> {
             try {

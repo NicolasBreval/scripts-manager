@@ -3,7 +3,7 @@ package org.nicbrerod.scripts.manager.node.ws;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.nicbrerod.scripts.manager.distributed.utils.node.ClusterNode;
+import org.nicbrerod.scripts.manager.node.ScriptManagerClusterNode;
 import org.nicbrerod.scripts.manager.node.model.BaseNodeInfo;
 
 import jakarta.inject.Inject;
@@ -22,7 +22,7 @@ public class NodeApi {
      * Node created in the system
      */
     @Inject
-    ClusterNode node;
+    ScriptManagerClusterNode node;
 
     /**
      * Used to get basic information about server's node
@@ -42,6 +42,6 @@ public class NodeApi {
     @GET
     @Path("/neighbours")
     public Set<BaseNodeInfo> getRegisteredNodes() {
-        return node.getClusterNodesInfo().values().stream().map(info -> new BaseNodeInfo(info.getNode(), info.getTerm(), info.isLeader())).collect(Collectors.toSet());
+        return node.getClusterNodesInfo().values().stream().map(info -> new BaseNodeInfo(info.getSender(), info.getTerm(), info.isLeader())).collect(Collectors.toSet());
     }
 }
