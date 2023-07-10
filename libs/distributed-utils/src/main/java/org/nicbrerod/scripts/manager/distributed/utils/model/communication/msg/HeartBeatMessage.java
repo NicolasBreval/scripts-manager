@@ -17,12 +17,6 @@ import lombok.Getter;
 public class HeartBeatMessage extends CommInterfaceMessage {
 
     /**
-     * Id of node who sends the heartbeat message
-     */
-    @Getter
-    private UUID node;
-
-    /**
      * A boolean to indicate if sender node is the leader
      */
     @Getter
@@ -49,9 +43,8 @@ public class HeartBeatMessage extends CommInterfaceMessage {
     @Getter
     private OffsetDateTime dateTime;
 
-    public HeartBeatMessage(UUID node, boolean leader, long term, float cpuUsage, float memoryUsage) {
-        super(CommInterfaceMessageType.HEARTBEAT);
-        this.node = node;
+    public HeartBeatMessage(UUID sender, boolean leader, long term, float cpuUsage, float memoryUsage) {
+        super(CommInterfaceMessageType.HEARTBEAT, sender);
         this.leader = leader;
         this.term = term;
         this.cpuUsage = cpuUsage;

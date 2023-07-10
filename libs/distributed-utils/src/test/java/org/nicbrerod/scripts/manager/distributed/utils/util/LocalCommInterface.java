@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
+import org.jboss.logging.Logger;
 import org.nicbrerod.scripts.manager.distributed.utils.communication.CommInterface;
 import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.CommInterfaceMessage;
 import org.nicbrerod.scripts.manager.distributed.utils.node.ClusterNode;
@@ -26,11 +27,13 @@ public class LocalCommInterface implements CommInterface {
      */
     private UUID nodeId;
 
+    private static Logger log = Logger.getLogger(CommInterface.class);
+
     /**
      * Registers a node to be the sender of this instance
      * @param node Node to register
      */
-    public void registerNode(ClusterNode node) {
+    public void registerNode(ClusterNode<?> node) {
         registeredNodes.put(node.getId(), new EventQueue<>(new LinkedBlockingQueue<>()));
         nodeId = node.getId();
     }
@@ -40,6 +43,7 @@ public class LocalCommInterface implements CommInterface {
      */
     @Override
     public void sendBroadcast(CommInterfaceMessage message) {
+        log.info("Sending broadcast message");
         registeredNodes.forEach((id, queue) -> {
             if (!id.equals(message.getId())) {
                 queue.add(message);
@@ -52,6 +56,7 @@ public class LocalCommInterface implements CommInterface {
      */
     @Override
     public void sendMessage(CommInterfaceMessage message, UUID recipient) {
+        log.info("Sending direct broadcast message");
         var queue = registeredNodes.get(recipient);
         queue.add(message);
     }

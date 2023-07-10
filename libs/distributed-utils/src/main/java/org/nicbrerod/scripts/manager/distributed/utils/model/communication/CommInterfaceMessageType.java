@@ -10,4 +10,8 @@ public enum CommInterfaceMessageType {
      * and used to identify which node is the leader
      */
     HEARTBEAT,
+    /**
+     * Type of message which represents a request from an user to the cluster
+     */
+    REQUEST
 }

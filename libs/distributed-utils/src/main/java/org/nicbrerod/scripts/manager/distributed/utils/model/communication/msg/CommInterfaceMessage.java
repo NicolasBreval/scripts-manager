@@ -34,7 +34,14 @@ public abstract class CommInterfaceMessage implements Serializable {
     @Getter
     private final OffsetDateTime timestamp = OffsetDateTime.now();
 
-    public CommInterfaceMessage(CommInterfaceMessageType type) {
+    /**
+     * Id of node who sends the heartbeat message
+     */
+    @Getter
+    private final UUID sender;
+
+    public CommInterfaceMessage(CommInterfaceMessageType type, UUID sender) {
         this.type = type;
+        this.sender = sender;
     }
 }

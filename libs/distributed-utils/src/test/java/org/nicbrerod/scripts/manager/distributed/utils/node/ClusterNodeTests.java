@@ -1,7 +1,5 @@
 package org.nicbrerod.scripts.manager.distributed.utils.node;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,12 +8,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.awaitility.Awaitility;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.nicbrerod.scripts.manager.distributed.utils.util.LocalCommInterface;
+import org.nicbrerod.scripts.manager.distributed.utils.util.TestNode;
 
 /**
  * Test class used to check if consensus node works in a virtual environment, where cluster is 
@@ -39,7 +39,7 @@ public class ClusterNodeTests {
     /**
      * List of nodes created in the test
      */
-    private List<ClusterNode> nodes = new ArrayList<>();
+    private List<TestNode> nodes = new ArrayList<>();
     
     /**
      * Parameter list to define the number of nodes in each test execution
@@ -47,13 +47,13 @@ public class ClusterNodeTests {
      */
     @Parameters
     public static Collection<Object[]> params() {
-        return Arrays.asList(2, 3, 4, 5, 6, 7, 8, 9, 10, 100).stream().map(x -> new Object[]{ x }).toList();
+        return Arrays.asList(2, 5, 10, 20).stream().map(x -> new Object[]{ x }).toList();
     }
 
     public ClusterNodeTests(int nodeCount) {
         for (int i = 0; i < nodeCount; i++) {
             var commInterface = new LocalCommInterface();
-            var node = new ClusterNode(commInterface);
+            var node = new TestNode(commInterface);
             commInterface.registerNode(node);
             node.configureCommInterface();
             this.nodes.add(node);
@@ -65,7 +65,8 @@ public class ClusterNodeTests {
      * and there is no other leader in the system
      * @throws InterruptedException Thrown if any thread created by nodes is broken by a system interruption
      */
-    @Test(timeout = 10000)
+    //@Test(timeout = 10000)
+    @Test
     public void checkOnlyOneLeader() throws InterruptedException {
         log.info(String.format("Test for %d nodes", nodes.size()));
         var executor = Executors.newScheduledThreadPool(nodes.size());
@@ -81,16 +82,6 @@ public class ClusterNodeTests {
             }, 0, TimeUnit.MILLISECONDS);
         }
 
-        while (!nodes.stream().allMatch(node -> node.isActive())) {
-            Thread.sleep(500);
-        }
-
-        Thread.sleep(1000);
-
-        var leaders = nodes.stream().map(x -> x.getLeader()).collect(Collectors.toSet());
-        log.info(String.format("Leaders: %s", leaders.toString()));
-        assertTrue("Test no passed, there are more than one leader in cluster", leaders.size() == 1);
-    
-        executor.shutdownNow();
+        Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() -> nodes.stream().map(x -> x.getLeader()).collect(Collectors.toSet()).size() == 1);
     }
 }

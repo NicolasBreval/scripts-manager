@@ -20,6 +20,7 @@
     <junit.version>4.11</junit.version>
     <lombok.version>1.18.28</lombok.version>
     <jboss-logging.version>3.5.1.Final</jboss-logging.version>
+    <awaitility.version>4.2.0</awaitility.version>
   </properties>
 
   <dependencies>
@@ -39,6 +40,12 @@
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
         <version>${jboss-logging.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <scope>test</scope>
+        <version>${awaitility.version}</version>
     </dependency>
   </dependencies>
 

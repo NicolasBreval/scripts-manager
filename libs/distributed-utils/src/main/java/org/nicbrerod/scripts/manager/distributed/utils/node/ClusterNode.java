@@ -1,5 +1,6 @@
 package org.nicbrerod.scripts.manager.distributed.utils.node;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.jboss.logging.Logger;
 import org.nicbrerod.scripts.manager.distributed.utils.communication.CommInterface;
 import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.HeartBeatMessage;
+import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.RequestMessage;
 
 import lombok.Getter;
 
@@ -20,7 +22,7 @@ import lombok.Getter;
  * Element to represent a server inside a custer. A ClusterNode has the ability to communicate 
  * between nodes in their same cluster and agree on who is the leader to organize the work
  */
-public class ClusterNode {
+public abstract class ClusterNode<R extends Serializable> {
 
     /**
      * Random object used to generate random numbers for some operations.
@@ -213,9 +215,10 @@ public class ClusterNode {
      */
     public void sendPeriodicalHeartBeat() {
         // TODO: Get system's cpu and memory usage
-        heartbeatExecutor.scheduleAtFixedRate(() -> commInterface.sendBroadcast(
-            new HeartBeatMessage(this.id, this.leader.equals(this.id), term, 0, 0)), 
-            0, heartbeatRate, TimeUnit.MILLISECONDS);
+        
+        heartbeatExecutor.scheduleAtFixedRate(() -> {
+            commInterface.sendBroadcast(new HeartBeatMessage(this.id, this.leader != null && this.leader.equals(this.id), term, 0, 0));
+        }, 0, heartbeatRate, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -249,6 +252,7 @@ public class ClusterNode {
      * Indicates to CommInterface how to process a type of message received from another
      * node in cluster
      */
+    @SuppressWarnings("unchecked")
     public void configureCommInterface() {
         this.commInterface.configureMessageProcessing((message) -> {
             if (message.getId().equals(this.id))
@@ -258,15 +262,22 @@ public class ClusterNode {
                 case HEARTBEAT:
                     var heartbeat = (HeartBeatMessage)message;
 
-                    log.info(String.format("New message received from '%s'", heartbeat.getNode()));
+                    log.info(String.format("New heartbeat message received from '%s'", heartbeat.getSender()));
 
                     if (heartbeat.getTerm() < this.term) {
-                        this.leader = heartbeat.getNode();
+                        this.leader = heartbeat.getSender();
                         this.leaderTerm = heartbeat.getTerm();
                     }
 
-                    clusterNodesInfo.put(heartbeat.getNode(), heartbeat);
-                    break; 
+                    clusterNodesInfo.put(heartbeat.getSender(), heartbeat);
+                    break;
+                case REQUEST:
+                    var request = (RequestMessage<R>)message;
+
+                    log.info(String.format("New request received from '%s'", request.getSender()));
+
+                    onRequest(request);
+                    break;
                 default:
                     break;
             }
@@ -288,15 +299,19 @@ public class ClusterNode {
      * @throws InterruptedException Throw if any thread-based operation is interrupted by system
      */
     public void consensus() throws InterruptedException {
+        log.info("Starting sending periodical heartbeat");
         // first of all, start heartbeat sending to notify of your existence
         sendPeriodicalHeartBeat();
 
+        log.info("Starting checking for another nodes registered");
         // then, starts to check for another nodes registered as neighbours of same cluster
         checkClusterNodeRegistry();
 
+        var waitTime = generateRandomWaitTime();
+        log.info(String.format("Sleeping for %d milliseconds", waitTime));
         // wait a random amount of milliseconds. This is usefull to wait to receive messages from the leader and 
         // don't to try become it
-        Thread.sleep(generateRandomWaitTime());
+        Thread.sleep(waitTime);
 
         // If leader term registered if less than this instance term, marks it as 
         // his own to send it to another nodes and notify that it tries to become leader
@@ -305,7 +320,10 @@ public class ClusterNode {
             this.leaderTerm = this.term;
         }
 
+        log.info("Node is active");
         // Now, node is active and can accept requests
         this.active = true;
     }
+
+    abstract protected void onRequest(RequestMessage<R> request);
 }
