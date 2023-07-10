@@ -1,5 +1,6 @@
 package org.nicbrerod.scripts.manager.script.runner.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +28,7 @@ public record Script(
      * Time unit related to {@link #timeout} field
      */
     TimeUnit timeunit
-) {
+) implements Serializable {
     /**
      * Additional constructor with 'timeunit' field as MILLISECONDS by default
      * @param id ID related to script
