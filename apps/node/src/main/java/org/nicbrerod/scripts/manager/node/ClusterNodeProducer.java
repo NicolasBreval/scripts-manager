@@ -5,8 +5,12 @@ import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.nicbrerod.scripts.manager.distributed.utils.communication.CommInterface;
+import org.nicbrerod.scripts.manager.distributed.utils.node.ClusterNode;
+import org.nicbrerod.scripts.manager.script.runner.model.Script;
 
 import io.quarkus.arc.log.LoggerName;
+import io.quarkus.runtime.Startup;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -14,6 +18,7 @@ import jakarta.inject.Singleton;
 /**
  * Configuration class used to generate a Node instance to represent a node inside a cluster
  */
+@ApplicationScoped
 public class ClusterNodeProducer {
     
     /**
@@ -51,11 +56,12 @@ public class ClusterNodeProducer {
     
     /**
      * Method to generate a unique instance of node in this system
-     * @return Th generated ClusterNode instance, based on properties
+     * @return The generated ClusterNode instance, based on properties
      */
+    @Startup
     @Produces
     @Singleton
-    public ScriptManagerClusterNode createNode() {
+    public ClusterNode<Script> createNode() {
         var node = new ScriptManagerClusterNode(commInterface, id, heartbeatRate, millisStart, millisEnd);
         node.configureCommInterface();
         new Thread(() -> {

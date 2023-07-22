@@ -65,7 +65,6 @@ public class ClusterNodeTests {
      * and there is no other leader in the system
      * @throws InterruptedException Thrown if any thread created by nodes is broken by a system interruption
      */
-    //@Test(timeout = 10000)
     @Test
     public void checkOnlyOneLeader() throws InterruptedException {
         log.info(String.format("Test for %d nodes", nodes.size()));

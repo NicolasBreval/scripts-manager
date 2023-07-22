@@ -8,7 +8,9 @@ import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.junit.jupiter.api.Test;
 import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.CommInterfaceMessage;
 import org.nicbrerod.scripts.manager.distributed.utils.model.communication.msg.HeartBeatMessage;
+import org.nicbrerod.scripts.manager.distributed.utils.node.ClusterNode;
 import org.nicbrerod.scripts.manager.node.testresources.NodeTestResources;
+import org.nicbrerod.scripts.manager.script.runner.model.Script;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,7 +32,7 @@ public class NodeTests {
     Emitter<CommInterfaceMessage> commInterfaceMessageEmitter;
 
     @Inject
-    ScriptManagerClusterNode node;
+    ClusterNode<Script> node;
 
     /**
      * Test used to simulate some situations, like receive new messages and register new nodes, a previously registered node that 

@@ -3,6 +3,7 @@ package org.nicbrerod.scripts.manager.node.amqp;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -32,6 +33,12 @@ public class AmqpCommInterface implements CommInterface {
      */
     @Channel("consensus") 
     Emitter<CommInterfaceMessage> commInterfaceMessageEmitter;
+
+    /**
+     * Node's ID
+     */
+    @ConfigProperty(name = "node.id")
+    UUID nodeId;
 
     /**
      * Sends a message to all nodes. In this case, all consumers in all nodes have a "consensus" topic configured, so, routing messages with this key, all 
@@ -72,7 +79,7 @@ public class AmqpCommInterface implements CommInterface {
      * @param message Message received
      */
     public void receive(CommInterfaceMessage message) {
-        if (consumer != null)
+        if (consumer != null && !message.getSender().equals(nodeId))
             consumer.accept(message);
     }
     

@@ -3,8 +3,9 @@ package org.nicbrerod.scripts.manager.node.ws;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.nicbrerod.scripts.manager.node.ScriptManagerClusterNode;
+import org.nicbrerod.scripts.manager.distributed.utils.node.ClusterNode;
 import org.nicbrerod.scripts.manager.node.model.BaseNodeInfo;
+import org.nicbrerod.scripts.manager.script.runner.model.Script;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -22,7 +23,7 @@ public class NodeApi {
      * Node created in the system
      */
     @Inject
-    ScriptManagerClusterNode node;
+    ClusterNode<Script> node;
 
     /**
      * Used to get basic information about server's node
