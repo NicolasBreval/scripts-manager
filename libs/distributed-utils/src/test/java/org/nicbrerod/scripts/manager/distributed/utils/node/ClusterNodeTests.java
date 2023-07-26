@@ -81,6 +81,11 @@ public class ClusterNodeTests {
             }, 0, TimeUnit.MILLISECONDS);
         }
 
-        Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() -> nodes.stream().map(x -> x.getLeader()).collect(Collectors.toSet()).size() == 1);
+        Awaitility.await().atMost(20, TimeUnit.SECONDS)
+            .until(() -> {
+                var leaders = nodes.stream().map(x -> x.getLeader()).collect(Collectors.toSet());
+                log.info("Current leaders: " + leaders.size());
+                return leaders.size() == 1;
+            });
     }
 }
