@@ -7,6 +7,12 @@
   <groupId>org.nicbrerod.scripts-manager</groupId>
   <artifactId>distributed-utils</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <parent>
+    <groupId>org.nicbrerod</groupId>
+    <artifactId>scripts-manager</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
 
   <name>distributed-utils</name>
   <!-- FIXME change it to the project's website -->
